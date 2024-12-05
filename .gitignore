@@ -1,0 +1,49 @@
+
+### Generated `.gitignore`
+```gitignore
+# Ignore Visual Studio temporary files, build results, and
+# user-specific files
+.vs/
+*.user
+*.suo
+*.tmp
+*.log
+*.userosscache
+*.userprefs
+*.obj/
+*.exe
+*.dll
+*.pdb
+*.cache/
+*.zip
+*.nupkg
+*.crdownload
+*.difftar
+*.sql
+
+# Ignore Visual Studio Code settings
+.vscode/
+.history/
+
+# Ignore build output
+bin/
+obj/
+debug/
+release/
+
+# Ignore dotnet CLI files
+*.lock.json
+*.db
+*.pidb
+.project
+.cachestage/
+*.tlog
+*.d.ts
+artifacts/
+
+# Ignore dependency folders
+packages/
+node_modules/
+
+# Ignore generated files
+GeneratedCode/
