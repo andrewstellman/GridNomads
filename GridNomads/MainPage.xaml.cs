@@ -32,7 +32,11 @@ public partial class MainPage : ContentPage
         {
             for (int j = 0; j < Columns; j++)
             {
-                var boxView = new BoxView { BackgroundColor = Colors.Gray };
+                var boxView = new BoxView
+                {
+                    BackgroundColor = Colors.Gray,
+                    Margin = 0.5 // Adds thin grid lines
+                };
                 GameGrid.Children.Add(boxView);
                 Grid.SetRow(boxView, i);
                 Grid.SetColumn(boxView, j);
@@ -44,7 +48,7 @@ public partial class MainPage : ContentPage
         {
             var row = random.Next(Rows);
             var col = random.Next(Columns);
-            var color = random.Next(2) == 0 ? Colors.Red : Colors.Blue;
+            var color = random.Next(2) == 0 ? Colors.Crimson : Colors.DodgerBlue; // Vibrant colors
             var cell = new MovableCell(row, col, color);
             movableCells.Add(cell);
             UpdateCellView(cell);
