@@ -8,7 +8,7 @@
     Title="GridNomads">
 
     <ShellContent
-        Title="Home"
+        Title="🟥 Grid Nomads – An AI-Driven Coding Experiment 🟦"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
