@@ -53,7 +53,7 @@ public partial class MainPage : ContentPage
 
     private void StartGameLoop()
     {
-        Device.StartTimer(TimeSpan.FromMilliseconds(UpdateInterval), () =>
+        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(UpdateInterval), () =>
         {
             MoveCells();
             return true; // Repeat timer
