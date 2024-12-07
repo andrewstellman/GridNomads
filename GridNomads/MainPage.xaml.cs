@@ -9,6 +9,7 @@ public partial class MainPage : ContentPage
     private readonly Dictionary<(int, int), BoxView> cells = new();
     private readonly Random random = new();
     private readonly List<MovableCell> movableCells = new();
+    private readonly List<Trail> trails = new();
 
     public MainPage()
     {
@@ -60,6 +61,7 @@ public partial class MainPage : ContentPage
         Dispatcher.StartTimer(TimeSpan.FromMilliseconds(UpdateInterval), () =>
         {
             MoveCells();
+            UpdateTrails();
             return true; // Repeat timer
         });
     }
@@ -68,10 +70,35 @@ public partial class MainPage : ContentPage
     {
         foreach (var cell in movableCells)
         {
+            var previousPosition = (cell.Row, cell.Column);
             ClearCellView(cell);
+
             cell.Move(Rows, Columns, random);
             UpdateCellView(cell);
+
+            var trail = new Trail(previousPosition.Item1, previousPosition.Item2, cell.Color);
+            trails.Add(trail);
+            UpdateTrailView(trail);
         }
+    }
+
+    private void UpdateTrails()
+    {
+        var trailsToRemove = new List<Trail>();
+        foreach (var trail in trails)
+        {
+            trail.Fade();
+            if (trail.Opacity <= 0)
+            {
+                trailsToRemove.Add(trail);
+                ClearTrailView(trail);
+            }
+            else
+            {
+                UpdateTrailView(trail);
+            }
+        }
+        trails.RemoveAll(trailsToRemove.Contains);
     }
 
     private void UpdateCellView(MovableCell cell)
@@ -82,5 +109,15 @@ public partial class MainPage : ContentPage
     private void ClearCellView(MovableCell cell)
     {
         cells[(cell.Row, cell.Column)].BackgroundColor = Colors.Gray;
+    }
+
+    private void UpdateTrailView(Trail trail)
+    {
+        cells[(trail.Row, trail.Column)].BackgroundColor = trail.GetFadedColor();
+    }
+
+    private void ClearTrailView(Trail trail)
+    {
+        cells[(trail.Row, trail.Column)].BackgroundColor = Colors.Gray;
     }
 }
