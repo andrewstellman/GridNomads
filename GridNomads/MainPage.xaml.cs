@@ -62,6 +62,7 @@ public partial class MainPage : ContentPage
         {
             MoveCells();
             UpdateTrails();
+            CheckProximityAndHighlight();
             return true; // Repeat timer
         });
     }
@@ -80,6 +81,63 @@ public partial class MainPage : ContentPage
             trails.Add(trail);
             UpdateTrailView(trail);
         }
+    }
+
+    private void CheckProximityAndHighlight()
+    {
+        // Clear previous highlights
+        foreach (var cell in movableCells)
+        {
+            ClearHighlight(cell);
+        }
+
+        // Check proximity and apply glow
+        for (int i = 0; i < movableCells.Count; i++)
+        {
+            var cellA = movableCells[i];
+            MovableCell? nearestNeighbor = null;
+            double minDistance = double.MaxValue;
+
+            for (int j = 0; j < movableCells.Count; j++)
+            {
+                if (i == j) continue;
+                var cellB = movableCells[j];
+                double distance = CalculateDistance(cellA, cellB);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestNeighbor = cellB;
+                }
+            }
+
+            if (nearestNeighbor != null && minDistance < 5)
+            {
+                HighlightNomad(cellA);
+                HighlightNomad(nearestNeighbor);
+            }
+        }
+    }
+
+    private double CalculateDistance(MovableCell cellA, MovableCell cellB)
+    {
+        int dRow = Math.Abs(cellA.Row - cellB.Row);
+        int dCol = Math.Abs(cellA.Column - cellB.Column);
+
+        // Handle wrapping
+        dRow = Math.Min(dRow, Rows - dRow);
+        dCol = Math.Min(dCol, Columns - dCol);
+
+        return Math.Sqrt(dRow * dRow + dCol * dCol);
+    }
+
+    private void HighlightNomad(MovableCell cell)
+    {
+        cells[(cell.Row, cell.Column)].BackgroundColor = cell.Color.WithLuminosity(0.8f); // Subtle glow effect
+    }
+
+    private void ClearHighlight(MovableCell cell)
+    {
+        cells[(cell.Row, cell.Column)].BackgroundColor = cell.Color;
     }
 
     private void UpdateTrails()
