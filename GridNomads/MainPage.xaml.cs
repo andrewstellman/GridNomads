@@ -2,9 +2,9 @@
 
 public partial class MainPage : ContentPage
 {
-    private const int Rows = 27;
-    private const int Columns = 48;
-    private const int CellSize = 20;
+    private const int Rows = 54; // Doubled
+    private const int Columns = 96; // Doubled
+    private const int CellSize = 10; // Halved to maintain grid size
     private const int UpdateInterval = 250; // milliseconds
     private readonly Dictionary<(int, int), BoxView> cells = new();
     private readonly Random random = new();
@@ -45,11 +45,13 @@ public partial class MainPage : ContentPage
             }
         }
 
-        for (int k = 0; k < 5; k++)
+        // Add four times as many nomads
+        int totalNomads = 20; // 4 times the original 5
+        for (int k = 0; k < totalNomads; k++)
         {
             var row = random.Next(Rows);
             var col = random.Next(Columns);
-            var color = random.Next(2) == 0 ? Colors.Crimson : Colors.DodgerBlue; // Vibrant colors
+            var color = (k % 2 == 0) ? Colors.Crimson : Colors.DodgerBlue; // Alternate red and blue
             var cell = new MovableCell(row, col, color);
             movableCells.Add(cell);
             UpdateCellView(cell);
@@ -85,13 +87,11 @@ public partial class MainPage : ContentPage
 
     private void CheckProximityAndHighlight()
     {
-        // Clear previous highlights
         foreach (var cell in movableCells)
         {
             ClearHighlight(cell);
         }
 
-        // Check proximity and apply glow
         for (int i = 0; i < movableCells.Count; i++)
         {
             var cellA = movableCells[i];
@@ -123,7 +123,6 @@ public partial class MainPage : ContentPage
         int dRow = Math.Abs(cellA.Row - cellB.Row);
         int dCol = Math.Abs(cellA.Column - cellB.Column);
 
-        // Handle wrapping
         dRow = Math.Min(dRow, Rows - dRow);
         dCol = Math.Min(dCol, Columns - dCol);
 
@@ -132,7 +131,7 @@ public partial class MainPage : ContentPage
 
     private void HighlightNomad(MovableCell cell)
     {
-        cells[(cell.Row, cell.Column)].BackgroundColor = cell.Color.WithLuminosity(0.8f); // Subtle glow effect
+        cells[(cell.Row, cell.Column)].BackgroundColor = cell.Color.WithLuminosity(0.8f);
     }
 
     private void ClearHighlight(MovableCell cell)
