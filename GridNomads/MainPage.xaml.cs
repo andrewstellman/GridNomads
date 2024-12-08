@@ -8,7 +8,7 @@ public partial class MainPage : ContentPage
     private const int UpdateInterval = 250; // milliseconds
     private readonly Dictionary<(int, int), BoxView> cells = new();
     private readonly Random random = new();
-    private readonly List<MovableCell> movableCells = new();
+    private readonly List<Nomad> nomads = new();
     private readonly List<Trail> trails = new();
 
     public MainPage()
@@ -52,9 +52,9 @@ public partial class MainPage : ContentPage
             var row = random.Next(Rows);
             var col = random.Next(Columns);
             var color = (k % 2 == 0) ? Colors.Crimson : Colors.DodgerBlue; // Alternate red and blue
-            var cell = new MovableCell(row, col, color);
-            movableCells.Add(cell);
-            UpdateCellView(cell);
+            var nomad = new Nomad(row, col, color);
+            nomads.Add(nomad);
+            UpdateNomadView(nomad);
         }
     }
 
@@ -62,24 +62,24 @@ public partial class MainPage : ContentPage
     {
         Dispatcher.StartTimer(TimeSpan.FromMilliseconds(UpdateInterval), () =>
         {
-            MoveCells();
+            MoveNomads();
             UpdateTrails();
             CheckProximityAndHighlight();
             return true; // Repeat timer
         });
     }
 
-    private void MoveCells()
+    private void MoveNomads()
     {
-        foreach (var cell in movableCells)
+        foreach (var nomad in nomads)
         {
-            var previousPosition = (cell.Row, cell.Column);
-            ClearCellView(cell);
+            var previousPosition = (nomad.Row, nomad.Column);
+            ClearNomadView(nomad);
 
-            cell.Move(Rows, Columns, random);
-            UpdateCellView(cell);
+            nomad.Move(Rows, Columns, random);
+            UpdateNomadView(nomad);
 
-            var trail = new Trail(previousPosition.Item1, previousPosition.Item2, cell.Color);
+            var trail = new Trail(previousPosition.Item1, previousPosition.Item2, nomad.Color);
             trails.Add(trail);
             UpdateTrailView(trail);
         }
@@ -87,41 +87,41 @@ public partial class MainPage : ContentPage
 
     private void CheckProximityAndHighlight()
     {
-        foreach (var cell in movableCells)
+        foreach (var nomad in nomads)
         {
-            ClearHighlight(cell);
+            ClearHighlight(nomad);
         }
 
-        for (int i = 0; i < movableCells.Count; i++)
+        for (int i = 0; i < nomads.Count; i++)
         {
-            var cellA = movableCells[i];
-            MovableCell? nearestNeighbor = null;
+            var nomadA = nomads[i];
+            Nomad? nearestNeighbor = null;
             double minDistance = double.MaxValue;
 
-            for (int j = 0; j < movableCells.Count; j++)
+            for (int j = 0; j < nomads.Count; j++)
             {
                 if (i == j) continue;
-                var cellB = movableCells[j];
-                double distance = CalculateDistance(cellA, cellB);
+                var nomadB = nomads[j];
+                double distance = CalculateDistance(nomadA, nomadB);
                 if (distance < minDistance)
                 {
                     minDistance = distance;
-                    nearestNeighbor = cellB;
+                    nearestNeighbor = nomadB;
                 }
             }
 
             if (nearestNeighbor != null && minDistance < 5)
             {
-                HighlightNomad(cellA);
+                HighlightNomad(nomadA);
                 HighlightNomad(nearestNeighbor);
             }
         }
     }
 
-    private double CalculateDistance(MovableCell cellA, MovableCell cellB)
+    private double CalculateDistance(Nomad nomadA, Nomad nomadB)
     {
-        int dRow = Math.Abs(cellA.Row - cellB.Row);
-        int dCol = Math.Abs(cellA.Column - cellB.Column);
+        int dRow = Math.Abs(nomadA.Row - nomadB.Row);
+        int dCol = Math.Abs(nomadA.Column - nomadB.Column);
 
         dRow = Math.Min(dRow, Rows - dRow);
         dCol = Math.Min(dCol, Columns - dCol);
@@ -129,14 +129,14 @@ public partial class MainPage : ContentPage
         return Math.Sqrt(dRow * dRow + dCol * dCol);
     }
 
-    private void HighlightNomad(MovableCell cell)
+    private void HighlightNomad(Nomad nomad)
     {
-        cells[(cell.Row, cell.Column)].BackgroundColor = cell.Color.WithLuminosity(0.8f);
+        cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color.WithLuminosity(0.8f);
     }
 
-    private void ClearHighlight(MovableCell cell)
+    private void ClearHighlight(Nomad nomad)
     {
-        cells[(cell.Row, cell.Column)].BackgroundColor = cell.Color;
+        cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color;
     }
 
     private void UpdateTrails()
@@ -158,14 +158,14 @@ public partial class MainPage : ContentPage
         trails.RemoveAll(trailsToRemove.Contains);
     }
 
-    private void UpdateCellView(MovableCell cell)
+    private void UpdateNomadView(Nomad nomad)
     {
-        cells[(cell.Row, cell.Column)].BackgroundColor = cell.Color;
+        cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color;
     }
 
-    private void ClearCellView(MovableCell cell)
+    private void ClearNomadView(Nomad nomad)
     {
-        cells[(cell.Row, cell.Column)].BackgroundColor = Colors.Gray;
+        cells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.Gray;
     }
 
     private void UpdateTrailView(Trail trail)

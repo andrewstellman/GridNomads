@@ -1,12 +1,12 @@
 namespace GridNomads;
 
-public class MovableCell
+public class Nomad
 {
     public int Row { get; private set; }
     public int Column { get; private set; }
     public Color Color { get; }
 
-    public MovableCell(int row, int column, Color color)
+    public Nomad(int row, int column, Color color)
     {
         Row = row;
         Column = column;
