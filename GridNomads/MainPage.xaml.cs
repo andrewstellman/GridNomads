@@ -109,7 +109,7 @@ public partial class MainPage : ContentPage
         {
             var excitementLevel = nomad.ExcitementLevel;
             cells[(nomad.Row, nomad.Column)].BackgroundColor =
-                nomad.Color.WithLuminosity(0.5f + 0.3f * excitementLevel); // Adjust brightness based on excitement
+                nomad.Color.WithLuminosity((float)(0.5 + 0.3 * excitementLevel)); // Explicit cast to float
         }
     }
 

@@ -2,7 +2,7 @@
 
 public class NeighborInfo
 {
-    public Direction Direction { get; set; }
-    public double Distance { get; set; }
-    public Color Color { get; set; }
+    public required Direction Direction { get; set; }
+    public required double Distance { get; set; }
+    public required Color Color { get; set; } // Ensures initialization
 }
