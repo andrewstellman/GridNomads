@@ -1,4 +1,5 @@
-﻿namespace GridNomads;
+﻿
+namespace GridNomads;
 
 public partial class MainPage : ContentPage
 {
@@ -35,7 +36,7 @@ public partial class MainPage : ContentPage
             {
                 var boxView = new BoxView
                 {
-                    BackgroundColor = Colors.Gray,
+                    BackgroundColor = Colors.DarkSlateGray, // Updated background color
                     Margin = 0.5
                 };
                 GameGrid.Children.Add(boxView);
@@ -109,7 +110,7 @@ public partial class MainPage : ContentPage
         {
             var excitementLevel = nomad.ExcitementLevel;
             cells[(nomad.Row, nomad.Column)].BackgroundColor =
-                nomad.Color.WithLuminosity((float)(0.5 + 0.3 * excitementLevel)); // Explicit cast to float
+                nomad.Color.WithLuminosity((float)(0.7 + 0.6 * excitementLevel)); // Higher brightness for excitement
         }
     }
 
@@ -142,7 +143,7 @@ public partial class MainPage : ContentPage
 
     private void ClearNomadView(Nomad nomad)
     {
-        cells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.Gray;
+        cells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.DarkSlateGray; // Updated background color
     }
 
     private void UpdateNomadView(Nomad nomad)
@@ -167,6 +168,6 @@ public partial class MainPage : ContentPage
 
     private void ClearTrailView(Trail trail)
     {
-        cells[(trail.Row, trail.Column)].BackgroundColor = Colors.Gray;
+        cells[(trail.Row, trail.Column)].BackgroundColor = Colors.DarkSlateGray; // Updated background color
     }
 }
