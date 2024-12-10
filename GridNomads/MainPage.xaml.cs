@@ -2,9 +2,9 @@
 
 public partial class MainPage : ContentPage
 {
-    private const int Rows = 54; // Doubled
-    private const int Columns = 96; // Doubled
-    private const int CellSize = 10; // Halved to maintain grid size
+    private const int Rows = 54;
+    private const int Columns = 96;
+    private const int CellSize = 10;
     private const int UpdateInterval = 250; // milliseconds
     private readonly Dictionary<(int, int), BoxView> cells = new();
     private readonly Random random = new();
@@ -36,7 +36,7 @@ public partial class MainPage : ContentPage
                 var boxView = new BoxView
                 {
                     BackgroundColor = Colors.Gray,
-                    Margin = 0.5 // Adds thin grid lines
+                    Margin = 0.5
                 };
                 GameGrid.Children.Add(boxView);
                 Grid.SetRow(boxView, i);
@@ -45,13 +45,12 @@ public partial class MainPage : ContentPage
             }
         }
 
-        // Add four times as many nomads
-        int totalNomads = 20; // 4 times the original 5
+        int totalNomads = 20;
         for (int k = 0; k < totalNomads; k++)
         {
             var row = random.Next(Rows);
             var col = random.Next(Columns);
-            var color = (k % 2 == 0) ? Colors.Crimson : Colors.DodgerBlue; // Alternate red and blue
+            var color = (k % 2 == 0) ? Colors.Crimson : Colors.DodgerBlue;
             var nomad = new Nomad(row, col, color);
             nomads.Add(nomad);
             UpdateNomadView(nomad);
@@ -64,7 +63,8 @@ public partial class MainPage : ContentPage
         {
             MoveNomads();
             UpdateTrails();
-            CheckProximityAndHighlight();
+            UpdateProximityData();
+            UpdateNomadViews();
             return true; // Repeat timer
         });
     }
@@ -85,36 +85,31 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private void CheckProximityAndHighlight()
+    private void UpdateProximityData()
     {
         foreach (var nomad in nomads)
         {
-            ClearHighlight(nomad);
-        }
-
-        for (int i = 0; i < nomads.Count; i++)
-        {
-            var nomadA = nomads[i];
-            Nomad? nearestNeighbor = null;
-            double minDistance = double.MaxValue;
-
-            for (int j = 0; j < nomads.Count; j++)
-            {
-                if (i == j) continue;
-                var nomadB = nomads[j];
-                double distance = CalculateDistance(nomadA, nomadB);
-                if (distance < minDistance)
+            var neighbors = nomads
+                .Where(n => n != nomad)
+                .Select(n => new NeighborInfo
                 {
-                    minDistance = distance;
-                    nearestNeighbor = nomadB;
-                }
-            }
+                    Direction = GetDirection(nomad, n),
+                    Distance = CalculateDistance(nomad, n),
+                    Color = n.Color
+                })
+                .ToList();
 
-            if (nearestNeighbor != null && minDistance < 5)
-            {
-                HighlightNomad(nomadA);
-                HighlightNomad(nearestNeighbor);
-            }
+            nomad.UpdateNeighbors(neighbors);
+        }
+    }
+
+    private void UpdateNomadViews()
+    {
+        foreach (var nomad in nomads)
+        {
+            var excitementLevel = nomad.ExcitementLevel;
+            cells[(nomad.Row, nomad.Column)].BackgroundColor =
+                nomad.Color.WithLuminosity(0.5f + 0.3f * excitementLevel); // Adjust brightness based on excitement
         }
     }
 
@@ -129,12 +124,28 @@ public partial class MainPage : ContentPage
         return Math.Sqrt(dRow * dRow + dCol * dCol);
     }
 
-    private void HighlightNomad(Nomad nomad)
+    private Direction GetDirection(Nomad origin, Nomad target)
     {
-        cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color.WithLuminosity(0.8f);
+        int dRow = (target.Row - origin.Row + Rows) % Rows;
+        int dCol = (target.Column - origin.Column + Columns) % Columns;
+
+        if (dRow > Rows / 2) dRow -= Rows;
+        if (dCol > Columns / 2) dCol -= Columns;
+
+        return DirectionHelper.GetDirection(dRow, dCol);
     }
 
-    private void ClearHighlight(Nomad nomad)
+    private void UpdateTrailView(Trail trail)
+    {
+        cells[(trail.Row, trail.Column)].BackgroundColor = trail.GetFadedColor();
+    }
+
+    private void ClearNomadView(Nomad nomad)
+    {
+        cells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.Gray;
+    }
+
+    private void UpdateNomadView(Nomad nomad)
     {
         cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color;
     }
@@ -150,27 +161,8 @@ public partial class MainPage : ContentPage
                 trailsToRemove.Add(trail);
                 ClearTrailView(trail);
             }
-            else
-            {
-                UpdateTrailView(trail);
-            }
         }
         trails.RemoveAll(trailsToRemove.Contains);
-    }
-
-    private void UpdateNomadView(Nomad nomad)
-    {
-        cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color;
-    }
-
-    private void ClearNomadView(Nomad nomad)
-    {
-        cells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.Gray;
-    }
-
-    private void UpdateTrailView(Trail trail)
-    {
-        cells[(trail.Row, trail.Column)].BackgroundColor = trail.GetFadedColor();
     }
 
     private void ClearTrailView(Trail trail)

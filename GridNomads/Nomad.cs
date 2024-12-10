@@ -5,6 +5,9 @@ public class Nomad
     public int Row { get; private set; }
     public int Column { get; private set; }
     public Color Color { get; }
+    private List<NeighborInfo> neighbors = new();
+
+    public double ExcitementLevel => neighbors.Count(n => n.Distance < 5) / 10.0;
 
     public Nomad(int row, int column, Color color)
     {
@@ -24,5 +27,10 @@ public class Nomad
         var (dRow, dCol) = directions[random.Next(directions.Length)];
         Row = (Row + dRow + maxRows) % maxRows;
         Column = (Column + dCol + maxCols) % maxCols;
+    }
+
+    public void UpdateNeighbors(List<NeighborInfo> newNeighbors)
+    {
+        neighbors = newNeighbors;
     }
 }
