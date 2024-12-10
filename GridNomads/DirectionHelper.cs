@@ -1,10 +1,23 @@
 ﻿namespace GridNomads;
 
+/// <summary>
+/// Provides utility methods for working with directions.
+/// </summary>
 public static class DirectionHelper
 {
+    /// <summary>
+    /// Determines the closest cardinal or diagonal direction based on the given row and column offsets.
+    /// </summary>
+    /// <param name="dRow">The row offset.</param>
+    /// <param name="dCol">The column offset.</param>
+    /// <returns>The <see cref="Direction"/> corresponding to the closest match.</returns>
+    /// <remarks>
+    /// This method uses the Euclidean distance formula (involving <see cref="Math.Sqrt"/> and <see cref="Math.Pow"/>)
+    /// to calculate how close the given offsets are to each of the predefined directions.
+    /// If the offsets don't directly match any predefined direction, the closest one is selected.
+    /// </remarks>
     public static Direction GetDirection(int dRow, int dCol)
     {
-        // Normalize (dRow, dCol) to one of the cardinal/diagonal directions
         var directions = new (int dRow, int dCol, Direction direction)[]
         {
             (-1, 0, Direction.N),
