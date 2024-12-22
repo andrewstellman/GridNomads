@@ -7,7 +7,8 @@ public partial class MainPage : ContentPage
     private const int CellSize = 10;
     private const int UpdateInterval = 250; // Nomad movement interval
     private const int TrailUpdateInterval = 50; // Trail fading interval
-    private readonly Dictionary<(int, int), BoxView> cells = new();
+    private readonly Dictionary<(int, int), BoxView> trailCells = new();
+    private readonly Dictionary<(int, int), BoxView> nomadCells = new();
     private readonly Random random = new();
     private readonly List<Nomad> nomads = new();
     private readonly List<Trail> trails = new();
@@ -35,15 +36,27 @@ public partial class MainPage : ContentPage
         {
             for (int j = 0; j < Columns; j++)
             {
-                var boxView = new BoxView
+                // Add trail layer
+                var trailBoxView = new BoxView
                 {
                     BackgroundColor = Colors.DarkSlateGray,
                     Margin = 0.5
                 };
-                GameGrid.Children.Add(boxView);
-                Grid.SetRow(boxView, i);
-                Grid.SetColumn(boxView, j);
-                cells[(i, j)] = boxView;
+                GameGrid.Children.Add(trailBoxView);
+                Grid.SetRow(trailBoxView, i);
+                Grid.SetColumn(trailBoxView, j);
+                trailCells[(i, j)] = trailBoxView;
+
+                // Add nomad layer (on top of the trail layer)
+                var nomadBoxView = new BoxView
+                {
+                    BackgroundColor = Colors.Transparent,
+                    Margin = 0.5
+                };
+                GameGrid.Children.Add(nomadBoxView);
+                Grid.SetRow(nomadBoxView, i);
+                Grid.SetColumn(nomadBoxView, j);
+                nomadCells[(i, j)] = nomadBoxView;
             }
         }
 
@@ -92,7 +105,6 @@ public partial class MainPage : ContentPage
             var trail = new Trail(previousPosition.Item1, previousPosition.Item2, nomad.Color);
             trails.Add(trail);
 
-            // Update trail view first to ensure nomad is rendered on top
             UpdateTrailView(trail);
             UpdateNomadView(nomad);
         }
@@ -121,7 +133,7 @@ public partial class MainPage : ContentPage
         foreach (var nomad in nomads)
         {
             var excitementLevel = nomad.ExcitementLevel;
-            cells[(nomad.Row, nomad.Column)].BackgroundColor =
+            nomadCells[(nomad.Row, nomad.Column)].BackgroundColor =
                 nomad.Color.WithLuminosity((float)(0.7 + 0.6 * excitementLevel));
         }
     }
@@ -150,12 +162,12 @@ public partial class MainPage : ContentPage
 
     private void UpdateTrailView(Trail trail)
     {
-        cells[(trail.Row, trail.Column)].BackgroundColor = trail.GetFadedColor();
+        trailCells[(trail.Row, trail.Column)].BackgroundColor = trail.GetFadedColor();
     }
 
     private void ClearNomadView(Nomad nomad)
     {
-        cells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.DarkSlateGray;
+        nomadCells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.Transparent;
     }
 
     private void UpdateTrails()
@@ -176,11 +188,6 @@ public partial class MainPage : ContentPage
 
     private void ClearTrailView(Trail trail)
     {
-        cells[(trail.Row, trail.Column)].BackgroundColor = Colors.DarkSlateGray;
-    }
-
-    private void UpdateNomadView(Nomad nomad)
-    {
-        cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color;
+        trailCells[(trail.Row, trail.Column)].BackgroundColor = Colors.DarkSlateGray;
     }
 }
