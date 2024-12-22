@@ -1,5 +1,4 @@
-﻿
-namespace GridNomads;
+﻿namespace GridNomads;
 
 public class Trail
 {
@@ -15,16 +14,16 @@ public class Trail
         BaseColor = baseColor;
     }
 
-    public void Fade()
+    public void Fade(double amount = 0.05)
     {
-        Opacity -= 0.4; // Faster fading for trails
+        Opacity -= amount; // Smoother fading
         if (Opacity < 0) Opacity = 0;
     }
 
     public Color GetFadedColor()
     {
         float grayBlend = 1 - (float)Opacity;
-        float red = (float)(BaseColor.Red * Opacity + 0.3 * grayBlend); // Reduced color intensity
+        float red = (float)(BaseColor.Red * Opacity + 0.3 * grayBlend);
         float green = (float)(BaseColor.Green * Opacity + 0.3 * grayBlend);
         float blue = (float)(BaseColor.Blue * Opacity + 0.3 * grayBlend);
 

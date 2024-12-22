@@ -1,12 +1,12 @@
-﻿
-namespace GridNomads;
+﻿namespace GridNomads;
 
 public partial class MainPage : ContentPage
 {
     private const int Rows = 54;
     private const int Columns = 96;
     private const int CellSize = 10;
-    private const int UpdateInterval = 250; // milliseconds
+    private const int UpdateInterval = 250; // Nomad movement interval
+    private const int TrailUpdateInterval = 50; // Trail fading interval
     private readonly Dictionary<(int, int), BoxView> cells = new();
     private readonly Random random = new();
     private readonly List<Nomad> nomads = new();
@@ -17,6 +17,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         InitializeGrid();
         StartGameLoop();
+        StartTrailAnimationLoop();
     }
 
     private void InitializeGrid()
@@ -36,7 +37,7 @@ public partial class MainPage : ContentPage
             {
                 var boxView = new BoxView
                 {
-                    BackgroundColor = Colors.DarkSlateGray, // Updated background color
+                    BackgroundColor = Colors.DarkSlateGray,
                     Margin = 0.5
                 };
                 GameGrid.Children.Add(boxView);
@@ -63,9 +64,17 @@ public partial class MainPage : ContentPage
         Dispatcher.StartTimer(TimeSpan.FromMilliseconds(UpdateInterval), () =>
         {
             MoveNomads();
-            UpdateTrails();
             UpdateProximityData();
             UpdateNomadViews();
+            return true; // Repeat timer
+        });
+    }
+
+    private void StartTrailAnimationLoop()
+    {
+        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(TrailUpdateInterval), () =>
+        {
+            UpdateTrails();
             return true; // Repeat timer
         });
     }
@@ -110,7 +119,7 @@ public partial class MainPage : ContentPage
         {
             var excitementLevel = nomad.ExcitementLevel;
             cells[(nomad.Row, nomad.Column)].BackgroundColor =
-                nomad.Color.WithLuminosity((float)(0.7 + 0.6 * excitementLevel)); // Higher brightness for excitement
+                nomad.Color.WithLuminosity((float)(0.7 + 0.6 * excitementLevel));
         }
     }
 
@@ -143,12 +152,7 @@ public partial class MainPage : ContentPage
 
     private void ClearNomadView(Nomad nomad)
     {
-        cells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.DarkSlateGray; // Updated background color
-    }
-
-    private void UpdateNomadView(Nomad nomad)
-    {
-        cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color;
+        cells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.DarkSlateGray;
     }
 
     private void UpdateTrails()
@@ -157,6 +161,7 @@ public partial class MainPage : ContentPage
         foreach (var trail in trails)
         {
             trail.Fade();
+            UpdateTrailView(trail);
             if (trail.Opacity <= 0)
             {
                 trailsToRemove.Add(trail);
@@ -168,6 +173,11 @@ public partial class MainPage : ContentPage
 
     private void ClearTrailView(Trail trail)
     {
-        cells[(trail.Row, trail.Column)].BackgroundColor = Colors.DarkSlateGray; // Updated background color
+        cells[(trail.Row, trail.Column)].BackgroundColor = Colors.DarkSlateGray;
+    }
+
+    private void UpdateNomadView(Nomad nomad)
+    {
+        cells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color;
     }
 }
