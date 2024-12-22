@@ -132,10 +132,15 @@ public partial class MainPage : ContentPage
     {
         foreach (var nomad in nomads)
         {
-            var excitementLevel = nomad.ExcitementLevel;
-            nomadCells[(nomad.Row, nomad.Column)].BackgroundColor =
-                nomad.Color.WithLuminosity((float)(0.7 + 0.6 * excitementLevel));
+            UpdateNomadView(nomad);
         }
+    }
+
+    private void UpdateNomadView(Nomad nomad)
+    {
+        var excitementLevel = nomad.ExcitementLevel;
+        nomadCells[(nomad.Row, nomad.Column)].BackgroundColor =
+            nomad.Color.WithLuminosity((float)(0.7 + 0.6 * excitementLevel));
     }
 
     private double CalculateDistance(Nomad nomadA, Nomad nomadB)
