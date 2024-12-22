@@ -87,11 +87,14 @@ public partial class MainPage : ContentPage
             ClearNomadView(nomad);
 
             nomad.Move(Rows, Columns, random);
-            UpdateNomadView(nomad);
 
+            // Add a trail where the nomad was
             var trail = new Trail(previousPosition.Item1, previousPosition.Item2, nomad.Color);
             trails.Add(trail);
+
+            // Update trail view first to ensure nomad is rendered on top
             UpdateTrailView(trail);
+            UpdateNomadView(nomad);
         }
     }
 
