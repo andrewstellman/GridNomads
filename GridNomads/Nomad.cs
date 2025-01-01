@@ -24,7 +24,7 @@ public class Nomad
     /// </summary>
     private PersonalityType AssignPersonality(Color color)
     {
-        if (color == Colors.Crimson) return PersonalityType.Offensive;
+        if (color == Colors.OrangeRed) return PersonalityType.Offensive; // Updated to match new color
         if (color == Colors.DodgerBlue) return PersonalityType.Defensive;
         throw new ArgumentException("Unsupported color for personality assignment.");
     }

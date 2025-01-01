@@ -39,7 +39,7 @@ public partial class MainPage : ContentPage
                 // Add trail layer
                 var trailBoxView = new BoxView
                 {
-                    BackgroundColor = Colors.DarkSlateGray,
+                    BackgroundColor = Colors.Black, // Use deep black for maximum contrast
                     Margin = 0.5
                 };
                 GameGrid.Children.Add(trailBoxView);
@@ -65,8 +65,11 @@ public partial class MainPage : ContentPage
         {
             var row = random.Next(Rows);
             var col = random.Next(Columns);
-            var color = (k % 2 == 0) ? Colors.Crimson : Colors.DodgerBlue;
+
+            // Use high-contrast colors
+            var color = (k % 2 == 0) ? Colors.OrangeRed : Colors.DodgerBlue;
             var nomad = new Nomad(row, col, color);
+
             nomads.Add(nomad);
             UpdateNomadView(nomad);
         }
