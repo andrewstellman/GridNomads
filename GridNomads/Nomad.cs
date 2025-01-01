@@ -9,7 +9,7 @@ public class Nomad
     public int Column { get; private set; }
     public Color Color { get; }
     public PersonalityType Personality { get; }
-    private const double AvoidanceRange = 3.0; // Proximity range for avoidance
+    private const double AvoidanceRange = 3.0; // Proximity range for interactions
 
     public Nomad(int row, int column, Color color)
     {
@@ -32,13 +32,21 @@ public class Nomad
     /// <summary>
     /// Calculates the distance to another nomad, accounting for edge wrapping.
     /// </summary>
-    public double CalculateDistanceTo(Nomad other, int maxRows, int maxColumns)
+    public double CalculateDistanceTo(Nomad other, int maxRows, int maxCols)
     {
-        int dRow = Math.Abs(Row - other.Row);
-        int dCol = Math.Abs(Column - other.Column);
+        return CalculateDistance(Row, Column, other.Row, other.Column, maxRows, maxCols);
+    }
+
+    /// <summary>
+    /// Calculates the distance between two points on the grid, accounting for edge wrapping.
+    /// </summary>
+    public static double CalculateDistance(int row1, int col1, int row2, int col2, int maxRows, int maxCols)
+    {
+        int dRow = Math.Abs(row1 - row2);
+        int dCol = Math.Abs(col1 - col2);
 
         dRow = Math.Min(dRow, maxRows - dRow);
-        dCol = Math.Min(dCol, maxColumns - dCol);
+        dCol = Math.Min(dCol, maxCols - dCol);
 
         return Math.Sqrt(dRow * dRow + dCol * dCol);
     }
@@ -58,7 +66,7 @@ public class Nomad
                 PerformDefensiveAction(allNomads, maxRows, maxCols, random);
                 break;
             case PersonalityType.Offensive:
-                // Placeholder for offensive behavior logic
+                PerformOffensiveAction(allNomads, maxRows, maxCols, random);
                 break;
             default:
                 throw new NotImplementedException($"Behavior for {Personality} not implemented.");
@@ -110,6 +118,61 @@ public class Nomad
             Column = (Column + bestDirection.Direction.dCol + maxCols) % maxCols;
         }
         // Else, stay in place if no beneficial move is found
+    }
+
+    /// <summary>
+    /// Executes the offensive behavior to seek out blue nomads within range.
+    /// </summary>
+    private void PerformOffensiveAction(List<Nomad> allNomads, int maxRows, int maxCols, Random random)
+    {
+        var nearbyBlueNomads = allNomads
+            .Where(n => n.Personality == PersonalityType.Defensive &&
+                        CalculateDistanceTo(n, maxRows, maxCols) <= AvoidanceRange)
+            .ToList();
+
+        if (!nearbyBlueNomads.Any())
+        {
+            // No nearby blue nomads, perform random movement
+            Move(maxRows, maxCols, random);
+            return;
+        }
+
+        // Find the closest blue nomad(s)
+        var minDistance = nearbyBlueNomads.Min(n => CalculateDistanceTo(n, maxRows, maxCols));
+        var closestBlueNomads = nearbyBlueNomads
+            .Where(n => CalculateDistanceTo(n, maxRows, maxCols) == minDistance)
+            .ToList();
+
+        // Randomly select one if multiple are equidistant
+        var target = closestBlueNomads[random.Next(closestBlueNomads.Count)];
+
+        // Move toward the target blue nomad
+        var directions = new (int dRow, int dCol)[]
+        {
+            (-1, 0), (-1, 1), (0, 1), (1, 1),
+            (1, 0), (1, -1), (0, -1), (-1, -1)
+        };
+
+        var bestDirection = directions
+            .Select(dir => new
+            {
+                Direction = dir,
+                TargetDistance = CalculateDistance(
+                    (Row + dir.dRow + maxRows) % maxRows,
+                    (Column + dir.dCol + maxCols) % maxCols,
+                    target.Row,
+                    target.Column,
+                    maxRows,
+                    maxCols)
+            })
+            .OrderBy(result => result.TargetDistance)
+            .FirstOrDefault();
+
+        if (bestDirection != null)
+        {
+            Row = (Row + bestDirection.Direction.dRow + maxRows) % maxRows;
+            Column = (Column + bestDirection.Direction.dCol + maxCols) % maxCols;
+        }
     }
 
     /// <summary>
