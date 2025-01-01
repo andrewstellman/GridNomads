@@ -56,6 +56,35 @@ public class Nomad
     }
 
     /// <summary>
+    /// Calculates the distance to another nomad, accounting for edge wrapping.
+    /// </summary>
+    public double CalculateDistanceTo(Nomad other, int maxRows, int maxColumns)
+    {
+        int dRow = Math.Abs(Row - other.Row);
+        int dCol = Math.Abs(Column - other.Column);
+
+        dRow = Math.Min(dRow, maxRows - dRow);
+        dCol = Math.Min(dCol, maxColumns - dCol);
+
+        return Math.Sqrt(dRow * dRow + dCol * dCol);
+    }
+
+    /// <summary>
+    /// Finds all nomads within a given range of this nomad.
+    /// </summary>
+    /// <param name="allNomads">The list of all nomads in the grid.</param>
+    /// <param name="range">The proximity range to search within.</param>
+    /// <param name="maxRows">The total number of rows in the grid.</param>
+    /// <param name="maxColumns">The total number of columns in the grid.</param>
+    /// <returns>A list of nearby nomads within the specified range.</returns>
+    public List<Nomad> GetNearbyNomads(List<Nomad> allNomads, double range, int maxRows, int maxColumns)
+    {
+        return allNomads
+            .Where(other => other != this && CalculateDistanceTo(other, maxRows, maxColumns) <= range)
+            .ToList();
+    }
+
+    /// <summary>
     /// Performs an action based on the nomad's personality.
     /// </summary>
     public void Act()
