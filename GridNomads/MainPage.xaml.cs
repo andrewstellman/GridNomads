@@ -39,7 +39,7 @@ public partial class MainPage : ContentPage
                 // Add trail layer
                 var trailBoxView = new BoxView
                 {
-                    BackgroundColor = Color.FromRgb(30, 30, 30), // Slightly lighter than black
+                    BackgroundColor = ColorConstants.BackgroundColor, // Use centralized constant
                     Margin = 0.5
                 };
                 GameGrid.Children.Add(trailBoxView);
@@ -67,7 +67,7 @@ public partial class MainPage : ContentPage
             var col = random.Next(Columns);
 
             // Use high-contrast colors
-            var color = (k % 2 == 0) ? Colors.OrangeRed : Colors.DodgerBlue;
+            var color = (k % 2 == 0) ? ColorConstants.RedNomadColor : ColorConstants.BlueNomadColor;
             var nomad = new Nomad(row, col, color);
 
             nomads.Add(nomad);
@@ -162,6 +162,6 @@ public partial class MainPage : ContentPage
 
     private void ClearTrailView(Trail trail)
     {
-        trailCells[(trail.Row, trail.Column)].BackgroundColor = Colors.DarkSlateGray;
+        trailCells[(trail.Row, trail.Column)].BackgroundColor = ColorConstants.TrailColor;
     }
 }
