@@ -23,10 +23,13 @@ public class Trail
     public Color GetFadedColor()
     {
         float grayBlend = 1 - (float)Opacity;
-        float red = (float)(BaseColor.Red * Opacity + 0.5 * grayBlend); // Increase baseline brightness
-        float green = (float)(BaseColor.Green * Opacity + 0.2 * grayBlend);
-        float blue = (float)(BaseColor.Blue * Opacity + 0.2 * grayBlend);
+        float targetGray = 0.12f; // RGB value for Color.FromRgb(30, 30, 30)
+
+        float red = (float)(BaseColor.Red * Opacity + targetGray * grayBlend);
+        float green = (float)(BaseColor.Green * Opacity + targetGray * grayBlend);
+        float blue = (float)(BaseColor.Blue * Opacity + targetGray * grayBlend);
 
         return new Color(red, green, blue, 1.0f);
     }
+
 }

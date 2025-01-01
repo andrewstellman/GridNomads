@@ -39,7 +39,7 @@ public partial class MainPage : ContentPage
                 // Add trail layer
                 var trailBoxView = new BoxView
                 {
-                    BackgroundColor = Colors.Black, // Use deep black for maximum contrast
+                    BackgroundColor = Color.FromRgb(30, 30, 30), // Slightly lighter than black
                     Margin = 0.5
                 };
                 GameGrid.Children.Add(trailBoxView);
