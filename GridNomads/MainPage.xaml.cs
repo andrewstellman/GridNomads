@@ -99,7 +99,7 @@ public partial class MainPage : ContentPage
             var previousPosition = (nomad.Row, nomad.Column);
             ClearNomadView(nomad);
 
-            nomad.Move(Rows, Columns, random);
+            nomad.Act(nomads, Rows, Columns, random);
 
             // Add a trail where the nomad was
             var trail = new Trail(previousPosition.Item1, previousPosition.Item2, nomad.Color);
@@ -114,17 +114,7 @@ public partial class MainPage : ContentPage
     {
         foreach (var nomad in nomads)
         {
-            var neighbors = nomads
-                .Where(n => n != nomad)
-                .Select(n => new NeighborInfo
-                {
-                    Direction = GetDirection(nomad, n),
-                    Distance = CalculateDistance(nomad, n),
-                    Color = n.Color
-                })
-                .ToList();
-
-            nomad.UpdateNeighbors(neighbors);
+            // Placeholder for future proximity logic updates
         }
     }
 
@@ -138,41 +128,7 @@ public partial class MainPage : ContentPage
 
     private void UpdateNomadView(Nomad nomad)
     {
-        var excitementLevel = nomad.ExcitementLevel;
-        nomadCells[(nomad.Row, nomad.Column)].BackgroundColor =
-            nomad.Color.WithLuminosity((float)(0.7 + 0.6 * excitementLevel));
-    }
-
-    private double CalculateDistance(Nomad nomadA, Nomad nomadB)
-    {
-        int dRow = Math.Abs(nomadA.Row - nomadB.Row);
-        int dCol = Math.Abs(nomadA.Column - nomadB.Column);
-
-        dRow = Math.Min(dRow, Rows - dRow);
-        dCol = Math.Min(dCol, Columns - dCol);
-
-        return Math.Sqrt(dRow * dRow + dCol * dCol);
-    }
-
-    private Direction GetDirection(Nomad origin, Nomad target)
-    {
-        int dRow = (target.Row - origin.Row + Rows) % Rows;
-        int dCol = (target.Column - origin.Column + Columns) % Columns;
-
-        if (dRow > Rows / 2) dRow -= Rows;
-        if (dCol > Columns / 2) dCol -= Columns;
-
-        return DirectionHelper.GetDirection(dRow, dCol);
-    }
-
-    private void UpdateTrailView(Trail trail)
-    {
-        trailCells[(trail.Row, trail.Column)].BackgroundColor = trail.GetFadedColor();
-    }
-
-    private void ClearNomadView(Nomad nomad)
-    {
-        nomadCells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.Transparent;
+        nomadCells[(nomad.Row, nomad.Column)].BackgroundColor = nomad.Color;
     }
 
     private void UpdateTrails()
@@ -189,6 +145,16 @@ public partial class MainPage : ContentPage
             }
         }
         trails.RemoveAll(trailsToRemove.Contains);
+    }
+
+    private void UpdateTrailView(Trail trail)
+    {
+        trailCells[(trail.Row, trail.Column)].BackgroundColor = trail.GetFadedColor();
+    }
+
+    private void ClearNomadView(Nomad nomad)
+    {
+        nomadCells[(nomad.Row, nomad.Column)].BackgroundColor = Colors.Transparent;
     }
 
     private void ClearTrailView(Trail trail)
